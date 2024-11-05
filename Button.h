@@ -12,15 +12,15 @@
 class Button {
 public:
     Button(float x, float y, float width, float height, const std::string& text);
-
     void draw(sf::RenderWindow& window);
     bool isClicked(const sf::Vector2f& mousePos) const;
 
 private:
-    sf::RectangleShape buttonShape;
-    sf::Text buttonText;
-    sf::Font font;
+    sf::RectangleShape shape;
+    sf::Text label;
+    sf::Font font; // Asegúrate de cargar una fuente en el constructor
 };
+
 
 
 #endif //TREAP_BUTTON_H

@@ -1,0 +1,12 @@
+# Archivos de configuración de IDE
+.idea/
+
+# Archivos de compilación de CMake
+cmake-build-debug/
+
+# Archivos binarios y de compilación
+*.exe
+*.obj
+*.o
+*.log
+*.cache

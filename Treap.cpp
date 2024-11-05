@@ -3,6 +3,7 @@
 //
 
 #include "Treap.h"
+#include "TreapVisualizer.h" // Asegúrate de incluir esto para la definición completa
 #include <iostream>
 
 Treap::Treap() : root(nullptr) {}
@@ -27,37 +28,87 @@ void Treap::clear() {
 }
 
 TreapNode* Treap::rotateRight(TreapNode* node) {
+    if (!node || !node->left) return node; // Asegúrate de que node y node->left sean válidos
     TreapNode* leftChild = node->left;
+
+    // Coordenadas actuales y de destino para el nodo y su hijo izquierdo
+    int parentX = 400, parentY = 50;         // Ajusta la posición del padre
+    int leftChildX = 300, leftChildY = 100;   // Ajusta la posición del hijo izquierdo
+
+    // Solo llama a animateMove si ambos nodos son válidos
+    if (node && leftChild) {
+        visualizer->animateMove(leftChild, leftChildX, leftChildY, parentX, parentY,
+                                node, parentX, parentY, leftChildX, leftChildY);
+    }
+
+    // Actualiza las conexiones en el árbol
     node->left = leftChild->right;
     leftChild->right = node;
+
+    // Dibuja la estructura actualizada final
+    visualizer->drawStep();
+
     return leftChild;
 }
 
+
+
 TreapNode* Treap::rotateLeft(TreapNode* node) {
+    if (!node || !node->right) return node;
     TreapNode* rightChild = node->right;
+
+    // Coordenadas actuales y de destino para el nodo y su hijo derecho
+    int parentX = 400, parentY = 50;         // Ajusta la posición del padre (5)
+    int rightChildX = 500, rightChildY = 100; // Ajusta la posición del hijo derecho (nueva posición de 5)
+
+    // Paso 1: Mover el hijo derecho a la posición del padre
+    visualizer->animateMove(rightChild, rightChildX, rightChildY, parentX, parentY, node, parentX, parentY, rightChildX, rightChildY);
+
+    // Actualiza las conexiones en el árbol
     node->right = rightChild->left;
     rightChild->left = node;
+
+    // Paso 2: Mover el nodo padre (5) a la posición de nuevo hijo izquierdo
+    visualizer->animateMove(node, parentX, parentY, rightChildX, rightChildY, nullptr, 0, 0, 0, 0); // Solo mueve el padre
+
+    // Paso 3: Dibuja la estructura actualizada final
+    visualizer->drawStep(); // Dibuja el árbol completo en su nueva estructura
+
     return rightChild;
 }
 
-TreapNode* Treap::insert(TreapNode* node, int key) {
-    if (!node) return new TreapNode(key);
+
+
+TreapNode* Treap::insert(TreapNode* node, int key, TreapVisualizer& visualizer) {
+    if (!node) {
+        auto* newNode = new TreapNode(key);
+        visualizer.drawStep(); // Mostrar el nodo recién insertado
+        return newNode;
+    }
 
     if (key < node->key) {
-        node->left = insert(node->left, key);
-        if (node->left && node->left->priority > node->priority)
+        node->left = insert(node->left, key, visualizer);
+        if (node->left && node->left->priority > node->priority) {
             node = rotateRight(node);
+            visualizer.drawStep(); // Mostrar después de la rotación
+        }
     } else {
-        node->right = insert(node->right, key);
-        if (node->right && node->right->priority > node->priority)
+        node->right = insert(node->right, key, visualizer);
+        if (node->right && node->right->priority > node->priority) {
             node = rotateLeft(node);
+            visualizer.drawStep(); // Mostrar después de la rotación
+        }
     }
     return node;
 }
 
-void Treap::insert(int key) {
-    root = insert(root, key);
+
+// En Treap.cpp
+void Treap::insert(int key, TreapVisualizer& visualizer) {
+    root = insert(root, key, visualizer);
 }
+
+
 
 TreapNode* Treap::deleteNode(TreapNode* node, int key) {
     if (!node) return node;
@@ -113,4 +164,3 @@ std::vector<std::pair<int, double>> Treap::getInorderList() {
 TreapNode* Treap::getRoot() const {
     return root;
 }
-

@@ -1,3 +1,0 @@
-C:/Users/mauri/CLionProjects/Treap/cmake-build-debug/CMakeFiles/Treap.dir
-C:/Users/mauri/CLionProjects/Treap/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/mauri/CLionProjects/Treap/cmake-build-debug/CMakeFiles/rebuild_cache.dir
