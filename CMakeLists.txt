@@ -19,12 +19,11 @@ add_executable(Treap main.cpp
         TreapNode.cpp
         Treap.h
         Treap.cpp
-        TreapManager.h
-        TreapManager.cpp
         TreapVisualizer.h
         TreapVisualizer.cpp
         Button.h
-        Button.cpp)
+        Button.cpp
+)
 
 # Enlazar las bibliotecas de SFML sin tener en cuenta el modo de compilación
 target_link_libraries(Treap sfml-graphics sfml-window sfml-system)

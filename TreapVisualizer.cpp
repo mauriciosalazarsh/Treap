@@ -1,149 +1,154 @@
-//
-// Created by mauri on 25/10/2024.
-//
-
 #include "TreapVisualizer.h"
-#include <string>
-
-#include <chrono>
-#include <thread>
-#include <cmath> // Para la interpolación
+#include <cmath>
 #include <iostream>
+#include <iomanip> // Para usar std::ostringstream
+#include <sstream>
 
-TreapVisualizer::TreapVisualizer(Treap& treap)
-    : treap(treap), window(sf::VideoMode(800, 600), "Treap Visualizer"),
-      nextStepButton(700, 550, 80, 30, "Next Step") { // Cambia aquí el inicializador del botón
+
+TreapVisualizer::TreapVisualizer(int width, int height, const std::string& title)
+    : window(sf::VideoMode(width, height), title),
+nextStepButton(-5, 30, 150, 50, "Next Step", font, "rectangle.png", sf::Color::Black)
+
+{
+    if (!font.loadFromFile("arial.ttf")) {
+        throw std::runtime_error("Error: No se pudo cargar la fuente");
+    }
+
+    if (!nodeTexture.loadFromFile("node.png")) {
+        throw std::runtime_error("Error: No se pudo cargar la textura del nodo");
+    }
+
+    message.setFont(font);
+    message.setCharacterSize(24);
+    message.setFillColor(sf::Color::Black);
+    message.setPosition(10, 10);
 }
 
 
 
-void TreapVisualizer::run() {
-    while (window.isOpen()) {
+void TreapVisualizer::setMessage(const std::string& msg) {
+    message.setString(msg);
+}
+
+void TreapVisualizer::drawStep(TreapNode* root) {
+    // Limpia la ventana
+    window.clear(sf::Color::White);
+
+    // Dibuja el mensaje actual
+    window.draw(message);
+
+    // Dibuja el árbol
+    if (root) {
+        drawTree(root, window.getSize().x / 2, 100, window.getSize().x / 4);
+    }
+
+    // Dibuja el botón
+    nextStepButton.render(window);
+
+    // Muestra los cambios
+    window.display();
+
+    // Espera interacción
+    while (true) {
         sf::Event event;
         while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
+            if (event.type == sf::Event::Closed) {
                 window.close();
-        }
+                exit(0);
+            }
 
-        window.clear(sf::Color::White);
-        drawTree(treap.getRoot(), 400, 50, 200); // Usa el getter getRoot()
-        window.display();
+            if (nextStepButton.isClicked(window, event)) {
+                return; // Continuar al siguiente paso
+            }
+        }
     }
 }
 
 
-void TreapVisualizer::drawTree(TreapNode* node, int x, int y, int offset) {
+
+
+void TreapVisualizer::drawTree(TreapNode* node, float x, float y, float offset) {
     if (!node) return;
 
-    // Texto que se mostrará en el nodo (clave y prioridad)
-    std::string text = std::to_string(node->key) + "\n(" + std::to_string(node->priority) + ")";
-    drawNode(x, y, text, sf::Color::Green);
+    // Dibuja el nodo actual
+    drawNode(node, x, y);
 
-
-    // Dibujar la línea y el hijo izquierdo
+    // Dibuja la conexión al hijo izquierdo
     if (node->left) {
-        sf::Vertex line[] = {
-                sf::Vertex(sf::Vector2f(x, y), sf::Color::Black),
-                sf::Vertex(sf::Vector2f(x - offset, y + 100), sf::Color::Black)
-        };
-        window.draw(line, 2, sf::Lines);
+        drawEdge(node, node->left, x, y, x - offset, y + 100);
         drawTree(node->left, x - offset, y + 100, offset / 2);
     }
 
-    // Dibujar la línea y el hijo derecho
+    // Dibuja la conexión al hijo derecho
     if (node->right) {
-        sf::Vertex line[] = {
-                sf::Vertex(sf::Vector2f(x, y), sf::Color::Black),
-                sf::Vertex(sf::Vector2f(x + offset, y + 100), sf::Color::Black)
-        };
-        window.draw(line, 2, sf::Lines);
+        drawEdge(node, node->right, x, y, x + offset, y + 100);
         drawTree(node->right, x + offset, y + 100, offset / 2);
     }
 }
 
 
-void TreapVisualizer::drawNode(int x, int y, const std::string& text, const sf::Color& color) {
-    sf::CircleShape circle(30);
-    circle.setFillColor(color); // Aplica el color de entrada
-    circle.setPosition(x - circle.getRadius(), y - circle.getRadius());
-    window.draw(circle);
+void TreapVisualizer::drawNode(TreapNode* node, float x, float y) {
+    if (!node) return;
 
-    sf::Font font;
-    if (!font.loadFromFile("arial.ttf")) {
-        // Manejo de error: fuente no encontrada
-        return;
-    }
+    // Crear el sprite del nodo
+    sf::Sprite sprite;
+    sprite.setTexture(nodeTexture); // Asignar la textura cargada
+    sprite.setOrigin(nodeTexture.getSize().x / 2.0f, nodeTexture.getSize().y / 2.0f); // Centrar el sprite
+    sprite.setPosition(x, y); // Posicionar el sprite en la ubicación del nodo
 
-    sf::Text nodeText(text, font, 14);
-    nodeText.setFillColor(sf::Color::Black);
-    nodeText.setPosition(x - 20, y - 20);
-    window.draw(nodeText);
+    // Escalar el sprite para que sea más pequeño
+    sprite.setScale(0.1, 0.1); // Ajusta los valores para el tamaño deseado
+
+    // Crear el texto con clave y prioridad
+    std::ostringstream oss;
+    oss <<  "   " << node->key << std::endl << "(" << std::fixed << std::setprecision(3) << node->priority << ")";
+    sf::Text text;
+    text.setFont(font);
+    text.setString(oss.str());
+    text.setCharacterSize(18); // Ajusta el tamaño del texto según el nodo
+    text.setFillColor(sf::Color::Black);
+
+    // Centrar el texto dentro del nodo
+    sf::FloatRect textBounds = text.getLocalBounds();
+    text.setOrigin(textBounds.left + textBounds.width / 2.0f, textBounds.top + textBounds.height / 2.0f);
+    text.setPosition(x, y);
+
+    // Dibujar el sprite y el texto
+    window.draw(sprite);
+    window.draw(text);
 }
 
 
-void TreapVisualizer::animateMove(TreapNode* node1, int startX1, int startY1, int endX1, int endY1,
-                                  TreapNode* node2, int startX2, int startY2, int endX2, int endY2) {
+void TreapVisualizer::drawEdge(TreapNode* parent, TreapNode* child, float x1, float y1, float x2, float y2) {
+    float nodeRadius = 40; // Radio del nodo (mismo que en drawNode)
 
-    if (!node1 || !node2) {
-        std::cerr << "Error: Puntero nulo en animateMove" << std::endl;
-        return;
-    }
+    sf::VertexArray edge(sf::Lines, 2);
+    edge[0].position = sf::Vector2f(x1, y1 + nodeRadius); // Parte inferior del nodo padre
+    edge[1].position = sf::Vector2f(x2, y2 - nodeRadius); // Parte superior del nodo hijo
+    edge[0].color = edge[1].color = sf::Color::Black;
 
-
-
-    const int frames = 60; // Número de fotogramas para una animación suave
-    for (int i = 0; i <= frames; ++i) {
-        float t = static_cast<float>(i) / frames;
-
-        // Interpolación lineal para ambos nodos
-        int x1 = startX1 + static_cast<int>((endX1 - startX1) * t);
-        int y1 = startY1 + static_cast<int>((endY1 - startY1) * t);
-        int x2 = startX2 + static_cast<int>((endX2 - startX2) * t);
-        int y2 = startY2 + static_cast<int>((endY2 - startY2) * t);
-
-        window.clear(sf::Color::White);
-        drawTree(treap.getRoot(), 400, 50, 200); // Dibuja el árbol completo
-
-        // Dibuja los nodos en movimiento
-        drawNode(x1, y1, std::to_string(node1->key) + "\n(" + std::to_string(node1->priority) + ")", sf::Color::Red);
-        drawNode(x2, y2, std::to_string(node2->key) + "\n(" + std::to_string(node2->priority) + ")", sf::Color::Blue);
-
-        window.display();
-        std::this_thread::sleep_for(std::chrono::milliseconds(16)); // Pausa entre frames
-    }
+    // Dibujar la línea
+    window.draw(edge);
 }
 
 
 
 
-void TreapVisualizer::drawStep() {
-    window.clear(sf::Color::White);
-    drawTree(treap.getRoot(), 400, 50, 200);
-    nextStepButton.draw(window); // Dibuja el botón de "Next Step"
-    window.display();
-    waitForNextStep(); // Espera a que el usuario presione "Next Step"
-}
-
-
-void TreapVisualizer::waitForNextStep() {
-    nextStepRequested = false;
-    while (!nextStepRequested && window.isOpen()) {
+void TreapVisualizer::visualizeTreap(Treap* treap) {
+    while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
-            } else if (event.type == sf::Event::MouseButtonPressed) {
-                // Detecta si el botón de "Next Step" fue presionado
-                if (nextStepButton.isClicked(sf::Vector2f(event.mouseButton.x, event.mouseButton.y))) {
-                    nextStepRequested = true;
-                }
             }
         }
 
-        // Dibuja el árbol y el botón "Next Step"
+        // Renderizar el árbol
         window.clear(sf::Color::White);
-        drawTree(treap.getRoot(), 400, 50, 200);
-        nextStepButton.draw(window); // Dibuja el botón en la ventana
+        if (treap->getRoot()) {
+            drawTree(treap->getRoot(), window.getSize().x / 2, 100, window.getSize().x / 4);
+        }
+        window.draw(message);
         window.display();
     }
 }

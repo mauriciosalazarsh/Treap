@@ -13,13 +13,10 @@ private:
     TreapNode* root;
     TreapVisualizer* visualizer;
 
-    TreapNode* insert(TreapNode* node, int key, TreapVisualizer& visualizer); // Asegúrate de que este tenga 3 parámetros
+    TreapNode* insert(TreapNode* node, int key, TreapVisualizer& visualizer);
     TreapNode* deleteNode(TreapNode* node, int key);
     TreapNode* search(TreapNode* node, int key);
-
-    // Modifica inorder para almacenar pares (key, priority)
     void inorder(TreapNode* node, std::vector<std::pair<int, double>>& result);
-
     void clearTree(TreapNode* node);
 
 public:
@@ -29,14 +26,14 @@ public:
     void setVisualizer(TreapVisualizer* vis) { visualizer = vis; }
     TreapNode* getRoot() const;
 
-    void insert(int key, TreapVisualizer& visualizer); // Asegúrate de que tenga 2 parámetros
+    void insert(int key, TreapVisualizer& visualizer);
     void deleteNode(int key);
     bool search(int key);
     std::vector<std::pair<int, double>> getInorderList();
     void clear();
     TreapNode* rotateRight(TreapNode* node);
     TreapNode* rotateLeft(TreapNode* node);
-
 };
+
 
 #endif // TREAP_TREAP_H

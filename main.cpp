@@ -3,17 +3,20 @@
 
 int main() {
     Treap treap;
-    TreapVisualizer visualizer(treap);
-    treap.setVisualizer(&visualizer); // Asocia el visualizador con el Treap
+    TreapVisualizer visualizer(1000, 700, "Treap Visualizer");
+    treap.setVisualizer(&visualizer);
 
-    // Inserciones con el visualizador como segundo parámetro
-    treap.insert(1, visualizer);
-    treap.insert(2, visualizer);
-    treap.insert(3, visualizer);
-    treap.insert(4, visualizer);
-    treap.insert(5, visualizer);
+    visualizer.setMessage("Insertando nodos...");
+    treap.insert(50, visualizer);
+    treap.insert(30, visualizer);
+    treap.insert(70, visualizer);
+    treap.insert(20, visualizer);
+    treap.insert(40, visualizer);
 
-    visualizer.run();
+    visualizer.setMessage("Eliminando nodos...");
+    treap.deleteNode(30);
+
+    visualizer.visualizeTreap(&treap);
+
     return 0;
 }
- 
