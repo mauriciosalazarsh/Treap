@@ -9,6 +9,17 @@
 
 class TreapVisualizer {
 private:
+    bool isInputBoxActive = false; // Estado de la caja de entrada
+
+    sf::RectangleShape insertButton; // Botón de insertar
+    sf::Text insertButtonText;       // Texto del botón
+
+    sf::RectangleShape deleteButton; // Botón de eliminar
+    sf::Text deleteButtonText;       // Texto del botón
+
+    sf::RectangleShape searchButton; // Botón de buscar
+    sf::Text searchButtonText;       // Texto del botón
+
 
     sf::RenderWindow window;
     sf::Font font;
@@ -18,6 +29,8 @@ private:
     std::map<std::pair<TreapNode*, TreapNode*>, sf::VertexArray> edges;
     sf::Texture nodeTexture; // Textura para los nodos
 
+    void handleTextInput(sf::Event event, std::string& inputText);
+    void drawInputBox(sf::RenderWindow& window, sf::Font& font, const std::string& inputText);
     void drawNode(TreapNode* node, float x, float y);
     void drawEdge(TreapNode* parent, TreapNode* child, float x1, float y1, float x2, float y2);
     void drawTree(TreapNode* node, float x, float y, float offset);
@@ -27,6 +40,10 @@ public:
     void setMessage(const std::string& msg);
     void drawStep(TreapNode* root);
     void visualizeTreap(Treap* treap);
+
+    void drawInputBox(sf::RenderWindow &window, sf::Font &font, std::string &inputText);
+
+    void handleInput(sf::RenderWindow &window, sf::Event &event, std::string &inputText);
 };
 
 #endif
