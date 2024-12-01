@@ -82,6 +82,7 @@ TreapNode* Treap::insert(TreapNode* node, int key, TreapVisualizer& visualizer) 
             visualizer.drawStep(root); // Mostrar antes de la rotación
             node = rotateRight(node);
         }
+
     } else {
         node->right = insert(node->right, key, visualizer);
         if (node->right && node->right->priority > node->priority) {

@@ -284,11 +284,6 @@ void TreapVisualizer::visualizeTreap(Treap* treap) {
     }
 }
 
-
-
-
-
-
 void TreapVisualizer::drawInputBox(sf::RenderWindow& window, sf::Font& font, std::string& inputText) {
     // Crear el rectángulo para la caja de entrada
     sf::RectangleShape inputBox(sf::Vector2f(200, 50)); // Tamaño del cuadro
