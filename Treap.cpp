@@ -102,35 +102,54 @@ void Treap::insert(int key, TreapVisualizer& visualizer) {
 }
 
 TreapNode* Treap::deleteNode(TreapNode* node, int key) {
+    // Caso base: Si el nodo es nulo, no hay nada que eliminar.
     if (!node) return node;
 
+    // Buscar el nodo en el subárbol izquierdo si la clave es menor.
     if (key < node->key) {
         node->left = deleteNode(node->left, key);
-    } else if (key > node->key) {
+    }
+    // Buscar el nodo en el subárbol derecho si la clave es mayor.
+    else if (key > node->key) {
         node->right = deleteNode(node->right, key);
-    } else {
+    }
+    // Caso: Clave encontrada (key == node->key)
+    else {
+        // Si el nodo no tiene hijo izquierdo, reemplazarlo con el hijo derecho.
         if (!node->left) {
-            node = node->right;
-        } else if (!node->right) {
-            node = node->left;
-        } else if (node->left->priority < node->right->priority) {
+            node = node->right; // Puede ser un nodo o nullptr.
+        }
+        // Si el nodo no tiene hijo derecho, reemplazarlo con el hijo izquierdo.
+        else if (!node->right) {
+            node = node->left; // Puede ser un nodo o nullptr.
+        }
+        // Si el nodo tiene ambos hijos, resolver con rotaciones.
+        else if (node->left->priority < node->right->priority) {
+            // Caso: La prioridad del hijo izquierdo es menor que la del derecho.
+            // Preparar una rotación izquierda para eliminar el nodo.
             visualizer->setMessage("Preparando rotacion izquierda para eliminar Nodo: " + std::to_string(key));
-            visualizer->drawStep(root); // Mostrar antes de la rotación
-            node = rotateLeft(node);
+            visualizer->drawStep(root); // Mostrar el árbol antes de la rotación.
+            node = rotateLeft(node); // Realizar la rotación izquierda.
+            // Continuar la eliminación en el subárbol izquierdo.
             node->left = deleteNode(node->left, key);
         } else {
+            // Caso: La prioridad del hijo derecho es menor o igual que la del izquierdo.
+            // Preparar una rotación derecha para eliminar el nodo.
             visualizer->setMessage("Preparando rotacion derecha para eliminar Nodo: " + std::to_string(key));
-            visualizer->drawStep(root); // Mostrar antes de la rotación
-            node = rotateRight(node);
+            visualizer->drawStep(root); // Mostrar el árbol antes de la rotación.
+            node = rotateRight(node); // Realizar la rotación derecha.
+            // Continuar la eliminación en el subárbol derecho.
             node->right = deleteNode(node->right, key);
         }
     }
 
+    // Notificar al visualizador que el nodo ha sido eliminado.
     visualizer->setMessage("Nodo eliminado: " + std::to_string(key));
-    visualizer->drawStep(root); // Mostrar después de la eliminación
+    visualizer->drawStep(root); // Mostrar el estado del árbol después de la eliminación.
+
+    // Devolver el nodo actualizado para que el árbol se mantenga consistente.
     return node;
 }
-
 
 void Treap::deleteNode(int key) {
     root = deleteNode(root, key);

@@ -105,9 +105,6 @@ void TreapVisualizer::drawStep(TreapNode* root) {
     }
 }
 
-
-
-
 void TreapVisualizer::drawTree(TreapNode* node, float x, float y, float offset) {
     if (!node) return;
 
